@@ -1,11 +1,9 @@
 # Eta-WavLM — Non-Official Implementation
 
-*A linear decomposition of SSL speech representations into speaker and content components*
-**arXiv:2505.19273v1**
-
 This repository contains a **non-official research implementation** of the methodology introduced in:
 
-> **η-WavLM: Linear Decomposition of Speaker and Content Components in Self-Supervised Speech Representations**
+[![arXiv](https://img.shields.io/badge/arXiv-2505.19273v1-orange)](https://arxiv.org/abs/2505.19273)
+Eta-WavLM: Efficient Speaker Identity Removal in Self-Supervised Speech Representations Using a Simple Linear Equation
 
 The implementation aims to separate SSL representations into:
 
@@ -20,26 +18,26 @@ The system closely follows the analytic framework in the paper, using **streamed
 
 Given:
 
-* SSL frame features (s \in \mathbb{R}^Q),
-* speaker embeddings (d \in \mathbb{R}^P),
+* SSL frame features (s ∈ ℝ^Q),
+* Speaker embeddings (d ∈ ℝ^P),
 
 the representation is decomposed as:
 
-<div align="center">
-<img src="https://render.githubusercontent.com/render/math?math=s%20%3D%20f(d)%20%2B%20%5Ceta%20%3D%20A%5E%5Ctop%20d%20%2B%20b%20%2B%20%5Ceta">
-</div>
+```
+s = f(d) + η = Aᵀ d + b + η
+```
 
 The augmented speaker matrix is:
 
-<div align="center">
-<img src="https://render.githubusercontent.com/render/math?math=%5Ctilde{D}%20%3D%20%5BD%5C%20%5C%201%5D">
-</div>
+```
+D~ = [D  1]
+```
 
-The mapping ((A,b)) is obtained by solving:
+The mapping `(A, b)` is obtained by solving the normal equation:
 
-<div align="center">
-<img src="https://render.githubusercontent.com/render/math?math=(%5Ctilde{D}%5E%5Ctop%20%5Ctilde{D})%20A%20%3D%20%5Ctilde{D}%5E%5Ctop%20S">
-</div>
+```
+(D~ᵀ D~) A = D~ᵀ S
+```
 
 This repository implements the process with:
 
@@ -59,11 +57,11 @@ For each utterance:
 1. Extract ECAPA-TDNN 192-dim embeddings
 2. Fit PCA across the dataset
 3. Reduce embeddings to **128 dimensions**
-4. Save
+4. Save:
 
    * PCA-reduced embeddings
    * PCA model
-   * metadata
+   * Metadata
 
 This stage is executed once per corpus.
 
@@ -79,14 +77,15 @@ For each utterance:
 4. Duplicate the speaker vector across all sampled frames
 5. Accumulate the normal-equation terms:
 
-<div align="center">
-<img src="https://render.githubusercontent.com/render/math?math=G%20%2B%3D%20%5Ctilde{D}%5E%5Ctop%20%5Ctilde{D}%2C%20%5Cqquad%20H%20%2B%3D%20%5Ctilde{D}%5E%5Ctop%20S">
-</div>
+```
+G += D~ᵀ D~
+H += D~ᵀ S
+```
 
 After all batches:
 
 * Solve once using Cholesky
-* Obtain matrices (A) and (b)
+* Obtain matrices `(A)` and `(b)`
 * No gradients or back-propagation are used
 
 ---
@@ -99,15 +98,15 @@ Validation computes η-representations and evaluates speaker leakage:
 2. Extract ECAPA-TDNN → PCA speaker embedding
 3. Compute projection:
 
-<div align="center">
-<img src="https://render.githubusercontent.com/render/math?math=f(d)%20%3D%20A%5E%5Ctop%20d%20%2B%20b">
-</div>
+```
+f(d) = Aᵀ d + b
+```
 
 4. Compute η residual:
 
-<div align="center">
-<img src="https://render.githubusercontent.com/render/math?math=%5Ceta%20%3D%20s%20-%20f(d)">
-</div>
+```
+η = s - f(d)
+```
 
 5. Train SVM classifiers on:
 
@@ -177,11 +176,11 @@ python scripts/serve.py \
 
 The server automatically:
 
-* loads the model
-* loads the PCA speaker model
-* runs WavLM and ECAPA-TDNN
-* resamples audio to **16kHz**
-* returns SSL, speaker, and η-features
+* Loads the model
+* Loads the PCA speaker model
+* Runs WavLM and ECAPA-TDNN
+* Resamples audio to **16kHz**
+* Returns SSL, speaker, and η-features
 
 ---
 
@@ -351,14 +350,17 @@ Community contributions, issue reports, and replication attempts are welcome.
 # 📚 Citation
 
 ```
-@article{eta-wavlm,
-  title={η-WavLM: Linear Decomposition of Speaker and Content Components in SSL Speech Representations},
-  journal={arXiv preprint arXiv:2505.19273},
-  year={2025}
+@misc{ruggiero2025etawavlmefficientspeakeridentity,
+      title={Eta-WavLM: Efficient Speaker Identity Removal in Self-Supervised Speech Representations Using a Simple Linear Equation}, 
+      author={Giuseppe Ruggiero and Matteo Testa and Jurgen Van de Walle and Luigi Di Caro},
+      year={2025},
+      eprint={2505.19273},
+      archivePrefix={arXiv},
+      primaryClass={cs.SD},
+      url={https://arxiv.org/abs/2505.19273}, 
 }
 ```
 
 This repository is not affiliated with the authors of the original publication.
 
 ---
-
