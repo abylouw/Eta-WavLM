@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Eta-WavLM Decomposition API using LitServer
+Eta-WavLM Decomposition API using LitServe
 
 Provides a web service for decomposing audio into SSL features, 
 speaker embeddings, and eta (speaker-independent) representations.
@@ -120,7 +120,7 @@ def parse_wav_header(wav_bytes: bytes) -> Dict[str, Any]:
 
 class EtaWavLMDecompositionAPI(ls.LitAPI):
     """
-    LitServer API for Eta-WavLM audio decomposition.
+    LitServe API for Eta-WavLM audio decomposition.
     
     Takes base64-encoded audio and returns:
     - SSL (WavLM) representations
@@ -398,7 +398,7 @@ def create_app(
     port: int = 8000
 ) -> ls.LitServer:
     """
-    Create and configure the LitServer application
+    Create and configure the LitServe application
     
     Args:
         model_path: Path to model checkpoint (optional, uses default)
@@ -407,13 +407,13 @@ def create_app(
         port: Server port
     
     Returns:
-        Configured LitServer application
+        Configured LitServe application
     """
     
     # Create API instance
     api = EtaWavLMDecompositionAPI(model_path=model_path, config_path=config_path)
     
-    # Create LitServer app
+    # Create LitServe app
     app = ls.LitServer(api)
     
     return app
