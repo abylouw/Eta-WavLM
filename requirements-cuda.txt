@@ -1,0 +1,18 @@
+lightning==2.5.6
+lightning-utilities==0.15.2
+pytorch-lightning==2.5.6
+soundfile==0.13.1
+speechbrain @ git+https://github.com/speechbrain/speechbrain.git@b7afd0350a9f6acaf8aa6dcd7dcffec25fa82e30
+torchmetrics==1.8.2
+tqdm==4.67.1
+transformers==4.57.1
+scikit-learn==1.7.2
+
+# for GPU (CUDA 12.6)
+torch==2.9.1 --index-url https://download.pytorch.org/whl/cu126
+torchaudio==2.9.1 --index-url https://download.pytorch.org/whl/cu126
+
+torchcodec==0.8.1
+tensorboard==2.20.0
+rich==10.2.2
+litserve==0.2.16

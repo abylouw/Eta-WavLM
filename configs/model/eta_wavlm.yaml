@@ -1,0 +1,52 @@
+# Model configuration for Eta-WavLM
+# This file contains all model-related parameters
+
+# Core model dimensions (as specified in the paper)
+ssl_dim: 1024                                  # SSL feature dimension (Q in paper) - WavLM-Large
+speaker_dim: 128                               # Speaker embedding dimension after PCA (P in paper)
+
+# Pretrained model specifications
+ssl_model:
+  name: "microsoft/wavlm-large"                # HuggingFace model name
+  layer_index: 14                              # Which layer to extract (15th layer, 0-indexed)
+  freeze: true                                 # Keep pretrained weights frozen
+  cache_dir: "./cache/models/ssl"
+
+speaker_model:
+  source: "speechbrain/spkrec-ecapa-voxceleb"  # SpeechBrain model source
+  freeze: true                                 # Keep pretrained weights frozen
+  cache_dir: "./cache/models/speaker"
+
+# Feature extraction parameters
+feature_extraction:
+  num_frames: 100                              # Number of frames to sample per utterance (L in paper)
+  frame_sampling: "random"                     # Sampling strategy: "random" or "uniform"
+  pca_components: 128                          # Number of PCA components (P in paper)
+  fit_pca_on_first_batch: true                 # Fit PCA on first training batch
+
+# Linear decomposition parameters
+decomposition:
+  regularization: 1e-6                         # Ridge regularization for numerical stability
+  solver: "pseudo_inverse"                     # Solver method: "pseudo_inverse" or "lstsq"
+  initialization: "xavier"                     # Parameter initialization: "xavier", "normal", "kaiming"
+
+# Training parameters (for potential gradient-based fine-tuning)
+training:
+  learning_rate: 1e-3                          # Learning rate
+  weight_decay: 1e-4                           # Weight decay for regularization
+  optimizer: "adamw"                           # Optimizer: "adamw", "adam", "sgd"
+  scheduler: null                              # LR scheduler: "cosine", "step", null
+  
+# Validation and monitoring
+validation:
+  speaker_classification: true                 # Run speaker classification evaluation
+  log_every_n_steps: 50                        # How often to log metrics
+  save_eta_examples: true                      # Save example eta representations
+  compute_speaker_leakage: true                # Compute speaker information leakage
+
+# Inference optimization
+inference:
+  batch_size: 32                               # Batch size for inference
+  use_half_precision: false                    # Use FP16 for inference 
+  compile_model: false                         # Use torch.compile 
+  

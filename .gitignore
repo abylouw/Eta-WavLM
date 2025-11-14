@@ -1,0 +1,16 @@
+cache/*
+!cache/.gitkeep
+
+checkpoints/*
+!checkpoints/.gitkeep
+
+data/*
+!data/.gitkeep
+
+logs/*
+!logs/.gitkeep
+
+outputs/*
+!outputs/.gitkeep
+
+venv

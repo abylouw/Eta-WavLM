@@ -1,0 +1,134 @@
+# Eta-WavLM Training Configuration
+# References existing model and data configs to avoid duplication
+
+# Experiment metadata
+experiment_name: "eta_wavlm_full_training"
+seed: 42
+description: "Full Eta-WavLM training with speaker independence evaluation"
+
+# Configuration references (no content duplication)
+model_config: "configs/model/eta_wavlm.yaml"
+data_config: "configs/data/librispeech.yaml"
+#data_config: "configs/data/libritts.yaml"
+
+# Training-specific overrides (optional)
+#overrides:
+  # Data overrides
+  # max_train_samples: 500             # Uncomment for quick testing
+  # max_val_samples: 200
+  # batch_size: 32                    # Override default batch size
+  
+  # Model overrides  
+  # regularization: 1e-5              # Override decomposition regularization
+  # num_frames: 50                    # Override frame sampling
+
+# Training configuration
+training:
+  max_epochs: 1                       # Usually 1 epoch for closed-form solution
+  accelerator: "auto"                 # auto, gpu, cpu
+  devices: "auto"                     # auto, 1, [0,1], etc.
+  strategy: "auto"                    # ddp, auto, etc.
+  precision: 32                       # 32, 16, bf16
+  deterministic: true                 # For reproducibility
+  
+  # Logging and validation
+  log_every_n_steps: 50
+  val_check_interval: 1.0             # Check validation every epoch
+  limit_train_batches: 1.0            # Use full training data
+  limit_val_batches: 1.0              # Use full validation data
+  num_sanity_val_steps: 0             # Skip sanity checks for speed
+  
+  # Progress and debugging
+  enable_progress_bar: true
+  enable_model_summary: true
+  enable_checkpointing: true
+
+# Checkpoint configuration
+checkpoint:
+  dirpath: "checkpoints"
+  filename: "eta_wavlm_{epoch:02d}_{val_eta_speaker_accuracy:.3f}"
+  monitor: "val_eta_speaker_accuracy"
+  mode: "min"                         # Lower speaker accuracy is better (less leakage)
+  save_top_k: 3
+  save_last: true
+  save_on_train_epoch_end: false      # Only save after validation
+  verbose: true
+
+# Logging configuration
+logging:
+  tensorboard:
+    save_dir: "logs"
+    name: null                        # Use experiment_name
+    version: null                     # Auto-generate version
+  csv:
+    save_dir: "logs"
+    name: null
+  default:
+    name: "tensorboard"
+
+# Evaluation configuration
+evaluation:
+  # Speaker classification evaluation
+  speaker_classification:
+    enabled: true
+    cv_folds: 5                       # Cross-validation folds
+    classifier: "svm"                 # svm, logistic, etc.
+    max_speakers: 10                  # Limit to N speakers for classification
+    
+  # Speaker leakage computation
+  speaker_leakage:
+    enabled: true
+    method: "variance_ratio"          # Method for computing leakage
+    
+  # Feature analysis
+  feature_analysis:
+    enabled: true
+    save_examples: true               # Save example eta representations
+    create_visualizations: true       # Create UMAP/t-SNE plots
+    n_visualization_samples: 1000
+
+# Output configuration  
+output:
+  base_dir: "outputs"
+  create_timestamp_dir: true          # Create timestamped sub-directory
+  
+  # What to save
+  save_model: true                    # Save trained model parameters
+  save_config: true                   # Save final merged configuration
+  save_metrics: true                  # Save evaluation metrics
+  save_features: false                # Save extracted features (large files)
+  save_plots: true                    # Save visualization plots
+  
+  # Directory structure
+  subdirs:
+    model: "model"                    # Model parameters
+    metrics: "metrics"                # Evaluation results  
+    plots: "plots"                    # Visualizations
+    features: "features"              # Feature dumps (if enabled)
+
+# Resource configuration
+resources:
+  # Memory management
+  dataloader_memory_efficient: true
+  feature_extraction_batch_size: 20   # For feature extraction if memory limited
+  
+  # GPU settings
+  gpu_memory_fraction: 0.9            # Fraction of GPU memory to use
+  mixed_precision: false              # Enable automatic mixed precision
+  
+  # CPU settings
+  num_workers: 20                     # Override data config if needed
+  pin_memory: true
+
+# Debug and development settings
+debug:
+  enabled: false                      # Enable debug mode
+  limit_batches: 10                   # Limit batches in debug mode
+  fast_dev_run: false                 # Run single batch for testing
+  profiler: null                      # pytorch, simple, advanced, null
+
+# Reproducibility settings
+reproducibility:
+  set_seed: true                      # Set random seeds
+  benchmark: false                    # Disable cudnn benchmark for reproducibility
+  deterministic: true                 # Force deterministic operations (slower)

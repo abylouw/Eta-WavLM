@@ -1,0 +1,46 @@
+# Data configuration for Eta-WavLM
+# This file contains all data-related parameters for the LibriSpeech dataset
+
+# Dataset paths
+data_dir: "./data/libri_tts"
+cache_dir: "./cache/data"
+
+# Dataset splits
+train_split: "train-clean-100"   # Main training split
+val_split: "dev-clean"           # Validation split (use "train-clean-100" to split from training)
+test_split: "test-clean"         # Test split for final evaluation
+
+# Audio preprocessing parameters
+sample_rate: 16000               # Target sample rate (Hz)
+max_duration: 10.0               # Maximum audio duration (seconds)
+min_duration: 1.0                # Minimum audio duration (seconds)
+normalize: true                  # Normalize audio amplitude
+trim_silence: false              # Trim silence from audio endpoints
+target_db: -20.0                 # Target RMS level in dB (if volume normalization enabled)
+
+# Data loading parameters
+batch_size: 16                   # Training batch size
+eval_batch_size: 32              # Evaluation batch size (can be larger)
+num_workers: 4                   # Number of DataLoader workers
+pin_memory: true                 # Pin memory for faster GPU transfer
+persistent_workers: true         # Keep workers alive between epochs
+drop_last: false                 # Don't drop incomplete batches
+
+# Train/validation split parameters (only used if val_split == train_split)
+val_ratio: 0.1                   # Proportion of data for validation
+speaker_level_split: true        # Split at speaker level
+
+# Data limits for debugging (set to null for full dataset)
+max_train_samples: null          # Limit training samples (e.g., 1000)
+max_val_samples: null            # Limit validation samples (e.g., 200) 
+max_test_samples: null           # Limit test samples (e.g., 200)
+
+# Speaker subset configuration (for evaluation)
+speaker_subset:
+  n_speakers: 10                 # Number of speakers for classification evaluation
+  min_utterances_per_speaker: 20 # Minimum utterances per speaker
+  max_utterances_per_speaker: 50 # Maximum utterances per speaker (null for no limit)
+  
+# Caching options
+cache_features: false            # Cache extracted features to disk
+cache_dir_features: "./cache/features"
